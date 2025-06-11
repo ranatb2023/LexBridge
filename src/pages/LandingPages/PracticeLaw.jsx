@@ -52,9 +52,9 @@ const PracticeLaw = () => {
         }
     }
     return (
-        <div className="flex bg-black">
-            <div className="w-screen h-screen flex justify-center items-center">
-                <div className="flex flex-col justify-center items-center py-6 px-6">
+        <div className="flex justify-center items-center min-h-screen bg-black px-4">
+            <div className="w-full max-w-lg py-8">
+                <div className="flex flex-col items-center">
                     <img src={LOGO} alt="Lex Bridge" className="w-[100px] height-[100px] rounded-full border-2 border-white" />
                     <div className="w-md flex flex-col justify-center items-center">
                         <h3 className="text-center text-4xl font-semibold text-white mt-[14px]">Practice Law Before it's Real</h3>

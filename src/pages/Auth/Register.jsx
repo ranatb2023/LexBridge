@@ -1,9 +1,13 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import AuthLayout from "../../components/layouts/AuthLayout";
 import { Link, useNavigate } from "react-router-dom";
 import Input from "../../components/inputs/Input";
 import { validateEmail } from "../../utils/helper";
 import ProfilePhotoSelector from "../../components/inputs/ProfilePhotoSelector";
+import axiosInstance from "../../utils/axiosInstace";
+import { API_PATHS } from "../../utils/apiPaths";
+import { UserContext } from "../../context/UserContet";
+import uploadImage from "../../utils/uploadImage";
 
 const Register = () => {
     const [name, setName] = useState("");
@@ -14,11 +18,14 @@ const Register = () => {
 
     const [error, setError] = useState("");
 
+    const { updateUser } = useContext(UserContext);
     const navigate = useNavigate();
 
     // Handle Register form submit
     const handleRegister = async (e) => {
         e.preventDefault();
+
+        let profileImageUrl ='';
 
         if(!name) {
             setError("Please enter full name.");
@@ -38,6 +45,42 @@ const Register = () => {
         setError("");
 
         // Register API call
+        try {
+
+            // Upload image if present
+            if(profilePic) {
+                const imageUploadRes = await uploadImage(profilePic);
+                profileImageUrl = imageUploadRes.imageUrl || "";
+            }
+
+            const response = await axiosInstance.post(API_PATHS.AUTH.REGISTER, {
+                name: name,
+                email,
+                password,
+                profileImageUrl,
+                adminInviteToken
+            });
+
+            const { token, role } = response.data;
+
+            if (token) {
+                localStorage.setItem("token", token);
+                updateUser(response.data)
+
+                // Redirect based on role
+                if (role === "admin") {
+                    navigate('/admin/dashboard')
+                } else {
+                    navigate("/user/dashboard")
+                }
+            }
+        } catch (error) {
+            if (error.response && error.response.data.message) {
+                setError(error.response.data.message);
+            } else {
+                setError("Something went wrong. Please try again.")
+            }
+        }
     }
     return (
         <AuthLayout>
