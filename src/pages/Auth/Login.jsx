@@ -61,12 +61,12 @@ const Login = () => {
     }
     return (
         <AuthLayout>
-            <div className="flex flex-col justify-center items-center">
+            <div className="flex flex-col justify-center items-center w-full">
                 <h3 className="text-xl font-semibold text-white mt-[14px]">Welcome Back</h3>
                 <p className="text-xs text-white mt-[5px] mb-6">
                     Please enter your details to login
                 </p>
-                <form className="w-sm" onSubmit={handleLogin}>
+                <form className="w-full max-w-sm" onSubmit={handleLogin}>
                     <Input
                         value={email}
                         onChange={({ target }) => setEmail(target.value)}
