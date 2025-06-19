@@ -12,8 +12,8 @@ const app = express();
 // Middleware to Handle CORS
 app.use(
     cors({
-        // origin: ["https://lexbridge.smarthospital.org"],
-        origin: process.env.CLIENT_URL || "*",
+        origin: ["https://lexbridge.co"],
+        // origin: process.env.CLIENT_URL || "*",
         methods: ["GET", "POST", "PUT", "DELETE"],
         allowedHeaders: ["Content-Type", "Authorization"],
         credentials: true,
