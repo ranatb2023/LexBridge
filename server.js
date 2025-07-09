@@ -32,7 +32,7 @@ app.use(
 // Connect Database
 connectDB();
 
-app.use("/api/stripe/webhook", express.raw({ type: "application/json" }), stripeWebhookRoutes); // early so body not parsed
+app.use("/api/stripe/webhook", stripeWebhookRoutes); // early so body not parsed
 app.use("/api/stripe", stripeCheckoutRoutes); // NOT /webhook — just /stripe
 // Middleware
 app.use(express.json())
