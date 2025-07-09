@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
 import { useUserAuth } from "../../hooks/useUserAuth";
-import { UserContext } from "../../context/UserContet";
-import DashboardLayout from "../../components/layouts/DashboardLayout";
+import { UserContext } from "../../context/UserContext";
+import DashboardLayout from "../../components/Layouts/DashboardLayout";
 import moment from "moment";
 
 const Dashboard = () => {

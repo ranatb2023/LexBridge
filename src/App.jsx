@@ -6,18 +6,24 @@ import {
   Route,
   Outlet,
   Navigate,
-} from "react-router-dom"
+} from "react-router-dom";
 import Login from "./pages/Auth/Login";
 import Register from "./pages/Auth/Register";
 import PracticeLaw from "./pages/LandingPages/PracticeLaw";
 import Dashboard from "./pages/Admin/Dashboard";
 import ManageUsers from "./pages/Admin/ManageUsers";
 import UserDashboard from "./pages/User/UserDashboard";
-import MyTasks from "./pages/User/MyTasks";
-import ViewTaskDetails from "./pages/User/ViewTaskDetails";
 import PrivateRoute from "./routes/PrivateRoute";
+import Billing from "./pages/Billing/Billing";
+import SubscriptionRoute from "./routes/SubscriptionRoute";
+import CaseGenerator from "./pages/User/CaseGenerator";
+import CaseDashboard from "./pages/User/CaseDashboard";
+import BillingSuccess from "./pages/Billing/Success";
+import BillingCancel from "./pages/Billing/Cancel";
 
-import UserProvider, { UserContext } from "./context/UserContet";
+import UserProvider, { UserContext } from "./context/UserContext";
+import CaseRequirements from "./pages/Admin/CaseRequirements";
+import CaseDetails from "./pages/User/CaseDetails";
 
 const App = () => {
   return (
@@ -29,30 +35,52 @@ const App = () => {
             <Route path="/register" element={<Register />} />
             <Route path="/" element={<PracticeLaw />} />
 
+            {/* Billing Pages */}
+            <Route path="user/billing" element={<Billing />} />
+            <Route path="user/billing-success" element={<BillingSuccess />} />
+            <Route path="user/billing-cancel" element={<BillingCancel />} />
+
             {/* Admin Routes */}
             <Route element={<PrivateRoute allowedRoles={["admin"]} />}>
-              <Route path="/admin/dashboard" element={<Dashboard />}  />
-              <Route path="/admin/users" element={<ManageUsers />}  />
+              <Route path="/admin/dashboard" element={<Dashboard />} />
+              <Route path="/admin/users" element={<ManageUsers />} />
+              <Route path="/admin/case-requirements" element={<CaseRequirements />} />
             </Route>
 
             {/* User Routes */}
             <Route element={<PrivateRoute allowedRoles={["user"]} />}>
-              <Route path="/user/dashboard" element={<UserDashboard />}  />
-              <Route path="/user/tasks" element={<MyTasks />} />
-              <Route path="/user/task-details/:id" element={<ViewTaskDetails />} />
+              <Route path="/user/dashboard" element={<UserDashboard />} />
+              <Route path="/admin/cases/:id" element={<CaseDetails />} />
+
+
+              {/* New Subscription-Protected Routes */}
+              <Route
+                path="/user/generate-case"
+                element={
+                  <SubscriptionRoute>
+                    <CaseGenerator />
+                  </SubscriptionRoute>
+                }
+              />
+              <Route
+                path="/user/cases"
+                element={
+                  <SubscriptionRoute>
+                    <CaseDashboard />
+                  </SubscriptionRoute>
+                }
+              />
             </Route>
 
             {/* For redirecting index route to login screen or to dashboard*/}
             {/* Default Route */}
             {/* <Route path="/" element={<Root />} /> */}
-
           </Routes>
         </Router>
       </div>
     </UserProvider>
-    
-  )
-}
+  );
+};
 
 export default App;
 
