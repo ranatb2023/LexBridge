@@ -21,8 +21,8 @@ const app = express();
 // Middleware to Handle CORS
 app.use(
     cors({
-        origin: ["http://lexbridge.co"],
-        // origin: process.env.CLIENT_URL || "*",
+        // origin: ["http://lexbridge.co"],
+        origin: process.env.CLIENT_URL || "*",
         methods: ["GET", "POST", "PUT", "DELETE"],
         allowedHeaders: ["Content-Type", "Authorization"],
         credentials: true,
