@@ -24,6 +24,7 @@ import BillingCancel from "./pages/Billing/Cancel";
 import UserProvider, { UserContext } from "./context/UserContext";
 import CaseRequirements from "./pages/Admin/CaseRequirements";
 import CaseDetails from "./pages/User/CaseDetails";
+import AdminCaseDetails from "./pages/Admin/AdminCaseDetails";
 
 const App = () => {
   return (
@@ -43,6 +44,7 @@ const App = () => {
             {/* Admin Routes */}
             <Route element={<PrivateRoute allowedRoles={["admin"]} />}>
               <Route path="/admin/dashboard" element={<Dashboard />} />
+              <Route path="/admin/cases/:id" element={<AdminCaseDetails />} />
               <Route path="/admin/users" element={<ManageUsers />} />
               <Route path="/admin/case-requirements" element={<CaseRequirements />} />
             </Route>
@@ -50,7 +52,7 @@ const App = () => {
             {/* User Routes */}
             <Route element={<PrivateRoute allowedRoles={["user"]} />}>
               <Route path="/user/dashboard" element={<UserDashboard />} />
-              <Route path="/admin/cases/:id" element={<CaseDetails />} />
+              <Route path="/user/cases/:id" element={<CaseDetails />} />
 
 
               {/* New Subscription-Protected Routes */}

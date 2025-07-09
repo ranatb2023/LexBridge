@@ -17,6 +17,8 @@ export const API_PATHS = {
     GET_ALL_BY_USER: "/api/cases",
     GET_BY_ID: (caseId) => `/api/cases/${caseId}`,
     EXPORT_BY_ID: (caseId) => `/api/cases/${caseId}/export`,
+    GET_ALL: "/api/admin/cases",
+    GET_CASE_BY_ADMIN: (caseId) => `/api/admin/cases/${caseId}`,
   },
 
   BILLING: {

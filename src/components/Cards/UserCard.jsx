@@ -8,8 +8,8 @@ const UserCard = ({ userInfo }) => {
                 <div className="flex items-center gap-3">
                     <img src={userInfo?.profileImageUrl || ProfilePic} alt={`Avatar`} className="w-12 h-12  rounded-full border-2 border-white" />
                     <div>
-                        <p className="text-sm font-medium">{userInfo?.name}</p>
-                        <p className="text-xs text-gray-500">{userInfo?.email}</p>
+                        <p className="text-sm font-medium text-white">{userInfo?.name}</p>
+                        <p className="text-xs text-gray-100">{userInfo?.email}</p>
                     </div>
                 </div>
             </div>

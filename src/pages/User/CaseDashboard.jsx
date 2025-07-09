@@ -79,7 +79,7 @@ const CaseDashboard = () => {
         </td>
         <td className="py-2 px-4 border border-gray-500">
           <Link
-            to={`/admin/cases/${c._id}`}
+            to={`/user/cases/${c._id}`}
             className="text-[#30D5C8] hover:underline"
           >
             View

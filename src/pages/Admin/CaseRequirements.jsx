@@ -10,11 +10,11 @@ const CaseRequirements = () => {
   const [topicName, setTopicName] = useState("");
   const [basePrompt, setBasePrompt] = useState("");
 
-//   const [topics, setTopics] = useState([]);
-const [topics, setTopics] = useState([]);
+  //   const [topics, setTopics] = useState([]);
+  const [topics, setTopics] = useState([]);
   const [subtopics, setSubtopics] = useState([]);
   const [jurisdictions, setJurisdictions] = useState([]);
-  const [difficulties, setDifficulties] = useState([]);  
+  const [difficulties, setDifficulties] = useState([]);
 
   const [subtopicName, setSubtopicName] = useState("");
   const [promptModifier, setPromptModifier] = useState("");
@@ -57,7 +57,9 @@ const [topics, setTopics] = useState([]);
 
   const fetchJurisdictions = async () => {
     try {
-      const res = await axiosInstance.get(API_PATHS.ADMIN.JURISDICTIONS.GET_ALL);
+      const res = await axiosInstance.get(
+        API_PATHS.ADMIN.JURISDICTIONS.GET_ALL
+      );
       setJurisdictions(res.data);
     } catch (err) {
       console.error("Failed to fetch jurisdictions", err);
@@ -282,7 +284,9 @@ const [topics, setTopics] = useState([]);
             <thead>
               <tr>
                 <th className="text-left py-2 px-4 w-1/2">Name</th>
-                <th className="text-left py-2 px-4 w-1/2">Legal Framework Prompt</th>
+                <th className="text-left py-2 px-4 w-1/2">
+                  Legal Framework Prompt
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -323,10 +327,16 @@ const [topics, setTopics] = useState([]);
 
   return (
     <DashboardLayout activeMenu="Case Requirements">
-      <div className="max-w-full mx-auto bg-black p-8 rounded-xl shadow-xl mt-10">
-        <h2 className="text-xl font-semibold mb-6 text-white">
-          Case Requirements
-        </h2>
+      <div className="mt-5 mb-10">
+        <div className="flex md:flex-row md:items-center justify-between mb-5">
+          <h2 className="text-xl md:text-xl font-medium text-white">
+            All Users
+          </h2>
+          {/* <button className="flex md:flex download-btn" onClick={handleDownloadReport}>
+                        <LuFileSpreadsheet className="text-lg" />
+                        Download Report
+                    </button> */}
+        </div>
 
         <div className="flex gap-4 mb-6">
           {["topic", "subtopic", "jurisdiction", "difficulty"].map((tab) => (
