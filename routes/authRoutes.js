@@ -1,6 +1,6 @@
 const express = require("express");
-const { registerUser, loginUser, getUserProfile, updateUserProfile } = require("../controllers/authControllers");
-const { protect } = require("../middlewares/authMiddleware");
+const { registerUser, loginUser, getUserProfile, updateUserProfile, getUsers } = require("../controllers/authControllers");
+const { protect, adminOnly } = require("../middlewares/authMiddleware");
 const upload = require("../middlewares/uploadMiddleware");
 
 const router = express.Router();
@@ -10,6 +10,7 @@ router.post("/register", registerUser); // Register User
 router.post("/login", loginUser); // Login User
 router.get("/profile", protect, getUserProfile); // Get User Profile
 router.put("/profile", protect, updateUserProfile); // Update User Profile
+router.get("/users", protect, adminOnly, getUsers); // Get All Users admin-only
 
 router.post("/upload-image", upload.single("image"), (req, res) => {
     if (!req.file) {

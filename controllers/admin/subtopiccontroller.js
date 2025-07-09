@@ -56,10 +56,11 @@ const deleteSubtopic = async (req, res) => {
 
 const getSubtopicsByTopic = async (req, res) => {
   try {
-    const subtopics = await Subtopic.find({ topic: req.params.topicId });
+    const subtopics = await Subtopic.find({ topicId: req.params.topicId }).populate("topicId");
     res.status(200).json(subtopics);
   } catch (error) {
-    res.status(500).json({ message: "Failed to get subtopics", error: error.message });
+    console.error("Error fetching subtopics by topic:", error);
+    res.status(500).json({ error: "Failed to fetch subtopics" });
   }
 };
 

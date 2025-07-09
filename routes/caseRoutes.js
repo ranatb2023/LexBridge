@@ -5,7 +5,7 @@ const {
   getSingleCase,
   exportCaseAsText,
 } = require("../controllers/caseControllers");
-const { protect } = require("../middlewares/authMiddleware");
+const { protect, adminOnly } = require("../middlewares/authMiddleware");
 const { requireSubscription } = require("../middlewares/subscriptionMiddleware");
 
 const router = express.Router();

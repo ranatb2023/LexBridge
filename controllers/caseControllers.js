@@ -14,10 +14,10 @@ const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 const generateCase = async (req, res) => {
   try {
     const userId = req.user.id;
-    const { topicId, subtopicId, difficultyId, jurisdictionId, customTopic } = req.body;
+    const { topicId, subtopicId, difficultyId, jurisdictionId } = req.body;
 
     // Validate all inputs
-    if (!topicId || !subtopicId || !difficultyId || !jurisdictionId || !customTopic) {
+    if (!topicId || !subtopicId || !difficultyId || !jurisdictionId) {
       return res.status(400).json({ message: "Missing required fields" });
     }
 
@@ -33,22 +33,24 @@ const generateCase = async (req, res) => {
       return res.status(404).json({ message: "Invalid data provided" });
     }
 
+    // Custom Topic: ${customTopic}
+
     // Combine prompt parts
     const fullPrompt = `
-${topic.basePrompt}
+      ${topic.basePrompt}
 
-Focus: ${subtopic.promptModifier}
-Complexity: ${difficulty.complexityPrompt}
-Jurisdiction: ${jurisdiction.legalFrameworkPrompt}
+      Focus: ${subtopic.promptModifier}
+      Complexity: ${difficulty.complexityPrompt}
+      Jurisdiction: ${jurisdiction.legalFrameworkPrompt}
 
-Custom Topic: ${customTopic}
+      
 
-Generate a fictional legal case including:
-1. Fact Pattern
-2. Witness Statement
-3. Supporting Document (e.g., police report, contract, legal memo)
-Use a realistic legal tone and clearly label each section.
-    `.trim();
+      Generate a fictional legal case including:
+      1. Fact Pattern
+      2. Witness Statement
+      3. Supporting Document (e.g., police report, contract, legal memo)
+      Use a realistic legal tone and clearly label each section.
+          `.trim();
 
     // Send to OpenAI
     const response = await openai.chat.completions.create({
@@ -57,7 +59,12 @@ Use a realistic legal tone and clearly label each section.
       temperature: 0.8,
     });
 
-    const content = response.choices[0].message.content;
+    const content = response.choices?.[0]?.message?.content;
+
+    if (!content) {
+      console.error("OpenAI response did not include content:", JSON.stringify(response, null, 2));
+      return res.status(500).json({ message: "OpenAI returned no content" });
+    }
 
     // Optional: extract sections (basic method)
     const factPattern = content.match(/Fact Pattern[:\n](.*?)(?=Witness Statement|$)/s)?.[1]?.trim() || "";

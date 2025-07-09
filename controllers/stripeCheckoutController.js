@@ -38,8 +38,8 @@ const createCheckoutSession = async (req, res) => {
         },
       ],
       mode: "subscription",
-      success_url: `${process.env.CLIENT_URL}/billing-success`,
-      cancel_url: `${process.env.CLIENT_URL}/billing-cancel`,
+      success_url: `${process.env.CLIENT_URL}/user/billing-success`,
+      cancel_url: `${process.env.CLIENT_URL}/user/billing-cancel`,
     });
 
     // return res.status(200).json({ url: session.url });
@@ -51,4 +51,26 @@ const createCheckoutSession = async (req, res) => {
   }
 };
 
-module.exports = { createCheckoutSession };
+const cancelSubscription = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user?.subscription?.stripeSubscriptionId) {
+      return res.status(400).json({ error: "No active subscription found." });
+    }
+
+    await stripe.subscriptions.update(user.subscription.stripeSubscriptionId, {
+      cancel_at_period_end: true,
+    });
+
+    // Optional: update your DB
+    user.subscription.status = "canceled";
+    await user.save();
+
+    res.status(200).json({ message: "Subscription cancelation scheduled." });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to cancel subscription." });
+  }
+}
+
+module.exports = { createCheckoutSession, cancelSubscription };
