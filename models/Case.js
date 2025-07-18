@@ -10,7 +10,8 @@ const caseSchema = new mongoose.Schema({
   generatedContent: {
     factPattern: String,
     witnessStatement: String,
-    supportingDocument: String
+    supportingDocument: String,
+    taskPrompt: { type: String },
   },
 
   fullPrompt: String,

@@ -6,16 +6,30 @@ const User = require("../../models/User");
 // @access Private/Admin
 const getAllGeneratedCases = async (req, res) => {
   try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    const total = await Case.countDocuments();
+    const totalPages = Math.ceil(total / limit);
+
     const cases = await Case.find()
       .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
       .populate("userId", "name email")
       .populate("topicId subtopicId difficultyId jurisdictionId", "name level");
 
-    res.status(200).json(cases);
+    res.status(200).json({
+      data: cases,
+      totalPages,
+      currentPage: page,
+    });
   } catch (error) {
     res.status(500).json({ message: "Server Error", error: error.message });
   }
 };
+
 
 // @desc Admin: Get any case by ID
 // @route GET /api/cases/admin/:id

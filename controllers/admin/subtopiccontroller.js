@@ -16,30 +16,30 @@ const getAllSubtopics = async (req, res) => {
 // @route POST /api/admin/subtopics
 // @access Private/Admin
 const createSubtopic = async (req, res) => {
-    try {
-        const { topicId, name, promptModifier } = req.body;
-        const subtopic = await Subtopic.create({ topicId, name, promptModifier });
-        res.status(201).json(subtopic);
-    } catch (error) {
-        res.status(500).json({ message: "Server Error", error: error.message });
-    }
+  try {
+    const { topicId, name, promptModifier, taskPrompt } = req.body;
+    const subtopic = await Subtopic.create({ topicId, name, promptModifier, taskPrompt });
+    res.status(201).json(subtopic);
+  } catch (error) {
+    res.status(500).json({ message: "Server Error", error: error.message });
+  }
 };
 
 // @desc Update subtopic
 // @route PUT /api/admin/subtopics/:id
 // @access Private/Admin
 const updateSubtopic = async (req, res) => {
-    try {
-        const { topicId, name, promptModifier } = req.body;
-        const subtopic = await Subtopic.findByIdAndUpdate(
-            req.params.id,
-            { topicId, name, promptModifier },
-            { new: true }
-        );
-        res.status(200).json(subtopic);
-    } catch (error) {
-        res.status(500).json({ message: "Server Error", error: error.message });
-    }
+  try {
+    const { topicId, name, promptModifier, taskPrompt } = req.body;
+    const subtopic = await Subtopic.findByIdAndUpdate(
+      req.params.id,
+      { topicId, name, promptModifier, taskPrompt },
+      { new: true }
+    );
+    res.status(200).json(subtopic);
+  } catch (error) {
+    res.status(500).json({ message: "Server Error", error: error.message });
+  }
 };
 
 // @desc Delete subtopic

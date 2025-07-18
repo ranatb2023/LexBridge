@@ -43,7 +43,7 @@ const generateCase = async (req, res) => {
       Complexity: ${difficulty.complexityPrompt}
       Jurisdiction: ${jurisdiction.legalFrameworkPrompt}
 
-      
+      Student Task: ${subtopic.taskPrompt}
 
       Generate a fictional legal case including:
       1. Fact Pattern
@@ -83,6 +83,7 @@ const generateCase = async (req, res) => {
         factPattern,
         witnessStatement,
         supportingDocument,
+        taskPrompt: subtopic.taskPrompt || "",
       },
     });
 

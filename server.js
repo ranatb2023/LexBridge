@@ -12,6 +12,7 @@ const difficultyRoutes = require("./routes/admin/difficultyRoutes");
 const jurisdictionRoutes = require("./routes/admin/jurisdictionRoutes");
 const caseRoutes = require("./routes/caseRoutes");
 const caseAdminRoutes = require("./routes/admin/caseAdminRoutes");
+const adminRoutes = require("./routes/admin/adminRoutes");
 const stripeWebhookRoutes = require("./routes/stripeWebhookRoutes");
 const stripeCheckoutRoutes = require("./routes/stripeCheckoutRoutes");
 const optionRoutes = require("./routes/public/optionRoutes");
@@ -56,6 +57,7 @@ app.use("/api/admin/jurisdictions", jurisdictionRoutes);
 app.use("/api/cases", caseRoutes);
 app.use("/api/admin/cases", caseAdminRoutes);
 app.use("/api/options", optionRoutes);
+app.use("/api/admin", adminRoutes);
 
 // app.use("/api/stripe", stripeWebhookRoutes);
 
