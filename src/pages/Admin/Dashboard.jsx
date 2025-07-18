@@ -1,84 +1,134 @@
-import React, { useContext, useEffect, useState } from "react";
-import { useUserAuth } from "../../hooks/useUserAuth";
-import { UserContext } from "../../context/UserContext";
-import DashboardLayout from "../../components/Layouts/DashboardLayout";
+import React, { useEffect, useState } from "react";
 import moment from "moment";
+import DashboardLayout from "../../components/Layouts/DashboardLayout";
 import axiosInstance from "../../utils/axiosInstance";
-import { Link } from "react-router-dom";
 import { API_PATHS } from "../../utils/apiPaths";
+import { Line } from "react-chartjs-2";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js";
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 const Dashboard = () => {
-  useUserAuth();
-  const { user } = useContext(UserContext);
-  const [cases, setCases] = useState([]);
+  const [stats, setStats] = useState({
+    totalUsers: 0,
+    totalCases: 0,
+    activeSubscriptions: 0,
+    todaysCases: 0,
+  });
+
+  const [caseTrend, setCaseTrend] = useState([]);
 
   useEffect(() => {
-    const fetchCases = async () => {
-      try {
-        const res = await axiosInstance.get(API_PATHS.CASES.GET_ALL);
-        setCases(res.data);
-      } catch (error) {
-        console.error("Failed to fetch cases:", error);
-      }
-    };
-
-    fetchCases();
+    fetchAdminStats();
   }, []);
+
+  const fetchAdminStats = async () => {
+    try {
+      const res = await axiosInstance.get(API_PATHS.ADMIN.STATS);
+      console.log(res)
+      setStats(res.data.overview);
+      setCaseTrend(res.data.caseTrend);
+    } catch (error) {
+      console.error("Failed to fetch admin stats:", error);
+    }
+  };
+
+  const lineChartData = {
+    labels: caseTrend.map((c) => c.week),
+    datasets: [
+      {
+        label: "Cases Created",
+        data: caseTrend.map((c) => c.count),
+        fill: true,
+        borderColor: "#60A5FA",
+        backgroundColor: "rgba(96, 165, 250, 0.15)",
+        tension: 0.4,
+      },
+    ],
+  };
 
   return (
     <DashboardLayout activeMenu="Dashboard">
-      <div className="card my-5">
-        <div className="col-span-3">
-          <h2 className="text-xl md:text-2xl text-white">
-            Good Morning! {user?.name}
-          </h2>
-          <p className="text-xs md:text-[13px] text-gray-400 mt-1.5">
-            {moment().format("dddd Do MMM YYYY")}
-          </p>
-        </div>
-      </div>
+      <div className="text-white">
+        <h2 className="text-3xl font-medium">Welcome Admin</h2>
+        <p className="text-sm text-gray-400 mt-1">
+          {moment().format("dddd Do MMM YYYY")}
+        </p>
 
-      <div className="mt-5 mb-10">
-        <div className="flex md:flex-row md:items-center justify-between mb-5">
-          <h2 className="text-xl md:text-xl font-medium text-white">
-            All Generated Cases
-          </h2>
+        {/* Stat Cards */}
+        <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {[
+            { label: "Total Users", value: stats.totalUsers, color: "#6EE7B7" },
+            { label: "Total Cases", value: stats.totalCases, color: "#93C5FD" },
+            {
+              label: "Active Subscriptions",
+              value: stats.activeSubscriptions,
+              color: "#FBBF24",
+            },
+            {
+              label: "Today's Cases",
+              value: stats.todaysCases,
+              color: "#F472B6",
+            },
+          ].map((card, idx) => (
+            <div
+              key={idx}
+              className="rounded-xl p-5 shadow-inner border border-white/10 backdrop-blur-md"
+              style={{
+                background: `linear-gradient(to bottom right, ${card.color}33, ${card.color}11)`,
+              }}
+            >
+              <p className="text-sm text-gray-300">{card.label}</p>
+              <h3 className="text-2xl font-bold">{card.value}</h3>
+            </div>
+          ))}
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="table-auto w-full text-left border border-gray-600">
-            <thead className="bg-gray-800 text-white">
-              <tr>
-                <th className="p-2 border border-gray-700">User</th>
-                <th className="p-2 border border-gray-700">Topic</th>
-                <th className="p-2 border border-gray-700">Subtopic</th>
-                <th className="p-2 border border-gray-700">Jurisdiction</th>
-                <th className="p-2 border border-gray-700">Difficulty</th>
-                <th className="p-2 border border-gray-700">Created At</th>
-                <th className="p-2 border border-gray-700">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {cases.map((item) => (
-                <tr key={item._id} className="text-white border border-gray-700">
-                  <td className="p-2 border border-gray-700">{item.userId?.name}</td>
-                  <td className="p-2 border border-gray-700">{item.topicId?.name}</td>
-                  <td className="p-2 border border-gray-700">{item.subtopicId?.name}</td>
-                  <td className="p-2 border border-gray-700">{item.jurisdictionId?.name}</td>
-                  <td className="p-2 border border-gray-700">{item.difficultyId?.level}</td>
-                  <td className="p-2 border border-gray-700">{moment(item.createdAt).format("Do MMM, YYYY")}</td>
-                  <td className="p-2 border border-gray-700">
-                    <Link
-                      to={`/admin/cases/${item._id}`}
-                      className="text-primary cursor-pointer hover:underline"
-                    >
-                      View
-                    </Link>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        {/* Chart */}
+        <div className="mt-10 p-6 rounded-xl shadow-inner border border-white/10 backdrop-blur-md bg-white/5">
+          <h3 className="text-lg font-semibold mb-4 text-white">
+            Weekly Case Generation
+          </h3>
+          <Line
+            data={lineChartData}
+            options={{
+              responsive: true,
+              plugins: {
+                legend: {
+                  labels: {
+                    color: "#ffffff",
+                  },
+                },
+              },
+              scales: {
+                x: {
+                  ticks: { color: "#aaa" },
+                  grid: { color: "#444" },
+                },
+                y: {
+                  ticks: { color: "#aaa" },
+                  grid: { color: "#444" },
+                },
+              },
+            }}
+          />
         </div>
       </div>
     </DashboardLayout>

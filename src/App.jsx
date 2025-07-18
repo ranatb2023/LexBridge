@@ -25,6 +25,7 @@ import UserProvider, { UserContext } from "./context/UserContext";
 import CaseRequirements from "./pages/Admin/CaseRequirements";
 import CaseDetails from "./pages/User/CaseDetails";
 import AdminCaseDetails from "./pages/Admin/AdminCaseDetails";
+import AdminCaseDashboard from "./pages/Admin/CaseDashboard";
 
 const App = () => {
   return (
@@ -44,6 +45,7 @@ const App = () => {
             {/* Admin Routes */}
             <Route element={<PrivateRoute allowedRoles={["admin"]} />}>
               <Route path="/admin/dashboard" element={<Dashboard />} />
+              <Route path="/admin/cases" element={<AdminCaseDashboard />} />
               <Route path="/admin/cases/:id" element={<AdminCaseDetails />} />
               <Route path="/admin/users" element={<ManageUsers />} />
               <Route path="/admin/case-requirements" element={<CaseRequirements />} />

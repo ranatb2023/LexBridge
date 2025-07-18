@@ -52,6 +52,7 @@ export const API_PATHS = {
       UPDATE: (id) => `/api/admin/difficulties/${id}`,
       DELETE: (id) => `/api/admin/difficulties/${id}`,
     },
+    STATS: "api/admin/stats",
   },
 
   OPTIONS: {

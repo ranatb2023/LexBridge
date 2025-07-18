@@ -44,8 +44,8 @@ const Billing = () => {
   const handleCancelSubscription = async () => {
     try {
       setCancelLoading(true);
-      await axios.post(API_PATHS.BILLING.CANCEL_SUBSCRIPTION); // Ensure this endpoint exists
-      await fetchSubscription(); // Refresh UI
+      await axios.post(API_PATHS.BILLING.CANCEL_SUBSCRIPTION);
+      await fetchSubscription();
     } catch (error) {
       console.error("Cancel subscription error:", error);
     } finally {
@@ -56,7 +56,7 @@ const Billing = () => {
   const renderSubscriptionInfo = () => {
     if (!subscription || subscription.status !== "active") {
       return (
-        <div className="flex items-center gap-3 text-red-700 bg-red-50 border border-red-200 p-4 rounded-xl">
+        <div className="flex items-center gap-3 text-red-400 bg-red-950/30 border border-red-500/30 p-4 rounded-xl">
           <LuCircleX className="w-6 h-6" />
           <span>You don’t have an active subscription.</span>
         </div>
@@ -64,17 +64,17 @@ const Billing = () => {
     }
 
     return (
-      <div className="bg-black border border-green-200 p-4 rounded-xl text-green-100 space-y-2">
+      <div className="bg-[#0c0c0c]/60 backdrop-blur border border-green-500/30 p-5 rounded-xl text-green-200 space-y-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 text-lg font-semibold">
-            <LuCircleCheck className="w-6 h-6" />
+            <LuCircleCheck className="w-6 h-6 text-green-400" />
             Plan: {subscription.plan}
           </div>
-          <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-medium">
+          <span className="bg-green-600/10 text-green-400 px-3 py-1 rounded-full text-sm font-medium">
             {subscription.status}
           </span>
         </div>
-        <p>
+        <p className="text-sm text-green-300">
           <strong>Renews On:</strong>{" "}
           {new Date(subscription.currentPeriodEnd).toLocaleDateString()}
         </p>
@@ -86,12 +86,12 @@ const Billing = () => {
     <DashboardLayout activeMenu="Billing">
       <div className="mt-5 mb-10">
         <div className="flex md:flex-row md:items-center justify-between">
-          <h2 className="text-xl md:text-xl font-medium text-white">Subscription Plan</h2>
+          <h2 className="text-xl font-medium text-white">Subscription Plan</h2>
         </div>
 
-        <div className="max-w-full mx-auto p-8 mt-10 bg-black rounded-2xl shadow-xl border-1 border-primary">
+        <div className="max-w-full mx-auto p-8 mt-8 bg-black/60 backdrop-blur-md border border-[#30D5C8]/20 rounded-2xl shadow-lg shadow-[#30D5C8]/10">
           {loading ? (
-            <div className="text-gray-100">Loading subscription details...</div>
+            <div className="text-gray-300">Loading subscription details...</div>
           ) : (
             <>
               <section className="mb-6">{renderSubscriptionInfo()}</section>
@@ -100,7 +100,7 @@ const Billing = () => {
                 <button
                   onClick={handleSubscribe}
                   disabled={buttonLoading}
-                  className="bg-[#30D5C8] hover:bg-cyan-700 text-white px-6 py-3 rounded-xl font-semibold transition duration-200 disabled:opacity-50 cursor-pointer"
+                  className="bg-[#30D5C8]/90 hover:bg-[#30D5C8] text-black font-semibold px-6 py-3 rounded-xl transition disabled:opacity-50 cursor-pointer"
                 >
                   {buttonLoading
                     ? "Redirecting..."
@@ -113,7 +113,7 @@ const Billing = () => {
                   <button
                     onClick={handleCancelSubscription}
                     disabled={cancelLoading}
-                    className="bg-red-100 text-red-700 hover:bg-red-200 px-6 py-3 rounded-xl font-semibold transition duration-200 disabled:opacity-50 cursor-pointer"
+                    className="bg-red-400/10 hover:bg-red-500/20 text-red-300 font-semibold px-6 py-3 rounded-xl transition disabled:opacity-50 cursor-pointer"
                   >
                     {cancelLoading ? "Cancelling..." : "Cancel Subscription"}
                   </button>

@@ -6,7 +6,7 @@ import moment from "moment";
 import { Link } from "react-router-dom";
 import { LuEye, LuDownload } from "react-icons/lu";
 
-const CaseDashboard = () => {
+const AdminCaseDashboard = () => {
   const [cases, setCases] = useState([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -21,7 +21,7 @@ const CaseDashboard = () => {
     try {
       setLoading(true);
       const res = await axiosInstance.get(
-        `${API_PATHS.CASES.GET_ALL_BY_USER}?page=${page}&limit=${limit}`
+        `${API_PATHS.CASES.GET_ALL}?page=${page}&limit=${limit}`
       );
       setCases(res.data.data);
       setTotalPages(res.data.totalPages);
@@ -80,20 +80,20 @@ const CaseDashboard = () => {
 
                   <div className="flex items-center gap-4 text-[#30D5C8]">
                     <Link
-                      to={`/user/cases/${c._id}`}
+                      to={`/admin/cases/${c._id}`}
                       title="View Case"
                       className="hover:text-white transition"
                     >
                       <LuEye className="text-2xl" />
                     </Link>
 
-                    <button
+                    {/* <button
                       title="Export Case"
                       onClick={() => handleExport(c._id)}
                       className="hover:text-white transition cursor-pointer"
                     >
                       <LuDownload className="text-2xl" />
-                    </button>
+                    </button> */}
                   </div>
                 </div>
               ))}
@@ -104,7 +104,7 @@ const CaseDashboard = () => {
               <button
                 onClick={() => setPage((p) => Math.max(p - 1, 1))}
                 disabled={page === 1}
-                className="bg-gray-800 text-white px-4 py-1.5 rounded disabled:opacity-50"
+                className="bg-gray-800 text-white px-4 py-1.5 rounded disabled:opacity-50 cursor-pointer"
               >
                 Previous
               </button>
@@ -114,7 +114,7 @@ const CaseDashboard = () => {
               <button
                 onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
                 disabled={page === totalPages}
-                className="bg-gray-800 text-white px-4 py-1.5 rounded disabled:opacity-50"
+                className="bg-gray-800 text-white px-4 py-1.5 rounded disabled:opacity-50 cursor-pointer"
               >
                 Next
               </button>
@@ -126,4 +126,4 @@ const CaseDashboard = () => {
   );
 };
 
-export default CaseDashboard;
+export default AdminCaseDashboard;

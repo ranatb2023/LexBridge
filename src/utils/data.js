@@ -24,6 +24,12 @@ export const SIDE_MENU_DATA = [
   },
   {
     id: "03",
+    label: "Case Dashboard",
+    icon: LuFileText,
+    path: "/admin/cases",
+  },
+  {
+    id: "04",
     label: "Case Requirements",
     icon: LuClipboardCheck,
     path: "/admin/case-requirements",
