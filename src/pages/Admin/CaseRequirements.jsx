@@ -8,6 +8,7 @@ const tabs = ["topic", "subtopic", "jurisdiction", "difficulty"];
 
 const CaseRequirements = () => {
   const [activeTab, setActiveTab] = useState("topic");
+  const [editingId, setEditingId] = useState(null);
 
   const [topicName, setTopicName] = useState("");
   const [basePrompt, setBasePrompt] = useState("");
@@ -56,7 +57,9 @@ const CaseRequirements = () => {
 
   const fetchJurisdictions = async () => {
     try {
-      const res = await axiosInstance.get(API_PATHS.ADMIN.JURISDICTIONS.GET_ALL);
+      const res = await axiosInstance.get(
+        API_PATHS.ADMIN.JURISDICTIONS.GET_ALL
+      );
       setJurisdictions(res.data);
     } catch (err) {
       console.error("Failed to fetch jurisdictions", err);
@@ -79,29 +82,106 @@ const CaseRequirements = () => {
 
     try {
       if (activeTab === "topic") {
-        if (!topicName || !basePrompt) return setError("All fields are required.");
-        await axiosInstance.post(API_PATHS.ADMIN.TOPICS.CREATE, { name: topicName, basePrompt });
-        setTopicName(""); setBasePrompt(""); fetchTopics(); setSuccess("Topic added.");
+        if (!topicName || !basePrompt)
+          return setError("All fields are required.");
+
+        if (editingId) {
+          // UPDATE
+          await axiosInstance.put(API_PATHS.ADMIN.TOPICS.UPDATE(editingId), {
+            name: topicName,
+            basePrompt,
+          });
+          setSuccess("Topic updated.");
+        } else {
+          // CREATE
+          await axiosInstance.post(API_PATHS.ADMIN.TOPICS.CREATE, {
+            name: topicName,
+            basePrompt,
+          });
+          setSuccess("Topic added.");
+        }
+        setTopicName("");
+        setBasePrompt("");
+        setEditingId(null);
+        fetchTopics();
       } else if (activeTab === "subtopic") {
         if (!selectedTopicId || !subtopicName || !promptModifier)
           return setError("All fields are required.");
-        await axiosInstance.post(API_PATHS.ADMIN.SUBTOPICS.CREATE, {
-          topicId: selectedTopicId, name: subtopicName, promptModifier, taskPrompt
-        });
-        setSubtopicName(""); setPromptModifier(""); setTaskPrompt(""); fetchSubtopics(); setSuccess("Subtopic added.");
+
+        if (editingId) {
+          await axiosInstance.put(API_PATHS.ADMIN.SUBTOPICS.UPDATE(editingId), {
+            topicId: selectedTopicId,
+            name: subtopicName,
+            promptModifier,
+            taskPrompt,
+          });
+          setSuccess("Subtopic updated.");
+        } else {
+          await axiosInstance.post(API_PATHS.ADMIN.SUBTOPICS.CREATE, {
+            topicId: selectedTopicId,
+            name: subtopicName,
+            promptModifier,
+            taskPrompt,
+          });
+          setSuccess("Subtopic added.");
+        }
+        setSubtopicName("");
+        setPromptModifier("");
+        setTaskPrompt("");
+        setSelectedTopicId("");
+        setEditingId(null);
+        fetchSubtopics();
       } else if (activeTab === "jurisdiction") {
-        if (!jurisdictionName || !legalFrameworkPrompt) return setError("All fields are required.");
-        await axiosInstance.post(API_PATHS.ADMIN.JURISDICTIONS.CREATE, {
-          name: jurisdictionName, legalFrameworkPrompt
-        });
-        setJurisdictionName(""); setLegalFrameworkPrompt(""); fetchJurisdictions(); setSuccess("Jurisdiction added.");
+        if (!jurisdictionName || !legalFrameworkPrompt)
+          return setError("All fields are required.");
+
+        if (editingId) {
+          await axiosInstance.put(
+            API_PATHS.ADMIN.JURISDICTIONS.UPDATE(editingId),
+            {
+              name: jurisdictionName,
+              legalFrameworkPrompt,
+            }
+          );
+          setSuccess("Jurisdiction updated.");
+        } else {
+          await axiosInstance.post(API_PATHS.ADMIN.JURISDICTIONS.CREATE, {
+            name: jurisdictionName,
+            legalFrameworkPrompt,
+          });
+          setSuccess("Jurisdiction added.");
+        }
+        setJurisdictionName("");
+        setLegalFrameworkPrompt("");
+        setEditingId(null);
+        fetchJurisdictions();
       } else if (activeTab === "difficulty") {
-        if (!difficultyLevel || !complexityPrompt) return setError("Level and prompt required.");
-        await axiosInstance.post(API_PATHS.ADMIN.DIFFICULTIES.CREATE, {
-          level: difficultyLevel, description: difficultyDescription, complexityPrompt
-        });
-        setDifficultyLevel(""); setComplexityPrompt(""); setDifficultyDescription("");
-        fetchDifficulties(); setSuccess("Difficulty added.");
+        if (!difficultyLevel || !complexityPrompt)
+          return setError("Level and prompt required.");
+
+        if (editingId) {
+          await axiosInstance.put(
+            API_PATHS.ADMIN.DIFFICULTIES.UPDATE(editingId),
+            {
+              level: difficultyLevel,
+              description: difficultyDescription,
+              complexityPrompt,
+            }
+          );
+          setSuccess("Difficulty updated.");
+        } else {
+          await axiosInstance.post(API_PATHS.ADMIN.DIFFICULTIES.CREATE, {
+            level: difficultyLevel,
+            description: difficultyDescription,
+            complexityPrompt,
+          });
+          setSuccess("Difficulty added.");
+        }
+        setDifficultyLevel("");
+        setComplexityPrompt("");
+        setDifficultyDescription("");
+        setEditingId(null);
+        fetchDifficulties();
       }
     } catch (err) {
       console.error(err);
@@ -114,8 +194,16 @@ const CaseRequirements = () => {
       case "topic":
         return (
           <>
-            <Input label="Topic Name" value={topicName} onChange={(e) => setTopicName(e.target.value)} />
-            <Input label="Base Prompt" value={basePrompt} onChange={(e) => setBasePrompt(e.target.value)} />
+            <Input
+              label="Topic Name"
+              value={topicName}
+              onChange={(e) => setTopicName(e.target.value)}
+            />
+            <Input
+              label="Base Prompt"
+              value={basePrompt}
+              onChange={(e) => setBasePrompt(e.target.value)}
+            />
           </>
         );
       case "subtopic":
@@ -128,24 +216,50 @@ const CaseRequirements = () => {
               onChange={(e) => setSelectedTopicId(e.target.value)}
             >
               <option value="">-- Select Topic --</option>
-              {topics.map((t) => <option key={t._id} value={t._id}>{t.name}</option>)}
+              {topics.map((t) => (
+                <option key={t._id} value={t._id}>
+                  {t.name}
+                </option>
+              ))}
             </select>
-            <Input label="Subtopic Name" value={subtopicName} onChange={(e) => setSubtopicName(e.target.value)} />
-            <Input label="Prompt Modifier" value={promptModifier} onChange={(e) => setPromptModifier(e.target.value)} />
-            <Input label="Task Prompt" value={taskPrompt} onChange={(e) => setTaskPrompt(e.target.value)} />
+            <Input
+              label="Subtopic Name"
+              value={subtopicName}
+              onChange={(e) => setSubtopicName(e.target.value)}
+            />
+            <Input
+              label="Prompt Modifier"
+              value={promptModifier}
+              onChange={(e) => setPromptModifier(e.target.value)}
+            />
+            <Input
+              label="Task Prompt"
+              value={taskPrompt}
+              onChange={(e) => setTaskPrompt(e.target.value)}
+            />
           </>
         );
       case "jurisdiction":
         return (
           <>
-            <Input label="Jurisdiction Name" value={jurisdictionName} onChange={(e) => setJurisdictionName(e.target.value)} />
-            <Input label="Legal Framework Prompt" value={legalFrameworkPrompt} onChange={(e) => setLegalFrameworkPrompt(e.target.value)} />
+            <Input
+              label="Jurisdiction Name"
+              value={jurisdictionName}
+              onChange={(e) => setJurisdictionName(e.target.value)}
+            />
+            <Input
+              label="Legal Framework Prompt"
+              value={legalFrameworkPrompt}
+              onChange={(e) => setLegalFrameworkPrompt(e.target.value)}
+            />
           </>
         );
       case "difficulty":
         return (
           <>
-            <label className="text-sm text-white mb-1">Select Difficulty Level</label>
+            <label className="text-sm text-white mb-1">
+              Select Difficulty Level
+            </label>
             <select
               className="w-full px-4 py-2 rounded-xl bg-[#1F1F1F] border border-[#30D5C8] text-white focus:outline-none mb-4"
               value={difficultyLevel}
@@ -155,8 +269,16 @@ const CaseRequirements = () => {
               <option value="Intermediate">Intermediate</option>
               <option value="Advanced">Advanced</option>
             </select>
-            <Input label="Description" value={difficultyDescription} onChange={(e) => setDifficultyDescription(e.target.value)} />
-            <Input label="Complexity Prompt" value={complexityPrompt} onChange={(e) => setComplexityPrompt(e.target.value)} />
+            <Input
+              label="Description"
+              value={difficultyDescription}
+              onChange={(e) => setDifficultyDescription(e.target.value)}
+            />
+            <Input
+              label="Complexity Prompt"
+              value={complexityPrompt}
+              onChange={(e) => setComplexityPrompt(e.target.value)}
+            />
           </>
         );
       default:
@@ -170,8 +292,47 @@ const CaseRequirements = () => {
       case "topic":
         return (
           <table className="w-full text-white mt-6">
-            <thead><tr><th className={rowClass}>Name</th><th className={rowClass}>Base Prompt</th></tr></thead>
-            <tbody>{topics.map((t) => <tr key={t._id}><td className={rowClass}>{t.name}</td><td className={rowClass}>{t.basePrompt}</td></tr>)}</tbody>
+            <thead>
+              <tr>
+                <th className={rowClass}>Name</th>
+                <th className={rowClass}>Base Prompt</th>
+                <th className={rowClass}>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {topics.map((t) => (
+                <tr key={t._id}>
+                  <td className={rowClass}>{t.name}</td>
+                  <td className={rowClass}>{t.basePrompt}</td>
+                  <td className={rowClass}>
+                    <button
+                      onClick={() => {
+                        setEditingId(t._id);
+                        setTopicName(t.name);
+                        setBasePrompt(t.basePrompt);
+                        window.scroll(0,0);
+                      }}
+                      className="text-blue-400 hover:underline mr-3 cursor-pointer"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={async () => {
+                        if (window.confirm("Delete this item?")) {
+                          await axiosInstance.delete(
+                            API_PATHS.ADMIN.TOPICS.DELETE(t._id)
+                          );
+                          fetchTopics();
+                        }
+                      }}
+                      className="text-red-400 hover:underline cursor-pointer"
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
           </table>
         );
       case "subtopic":
@@ -183,30 +344,142 @@ const CaseRequirements = () => {
                 <th className={rowClass}>Prompt Modifier</th>
                 <th className={rowClass}>Task Prompt</th>
                 <th className={rowClass}>Topic</th>
+                <th className={rowClass}>Actions</th>
               </tr>
             </thead>
-            <tbody>{subtopics.map((s) => (
-              <tr key={s._id}>
-                <td className={rowClass}>{s.name}</td>
-                <td className={rowClass}>{s.promptModifier}</td>
-                <td className={rowClass}>{s.taskPrompt}</td>
-                <td className={rowClass}>{s.topicId?.name}</td>
-              </tr>
-            ))}</tbody>
+            <tbody>
+              {subtopics.map((s) => (
+                <tr key={s._id}>
+                  <td className={rowClass}>{s.name}</td>
+                  <td className={rowClass}>{s.promptModifier}</td>
+                  <td className={rowClass}>{s.taskPrompt}</td>
+                  <td className={rowClass}>{s.topicId?.name}</td>
+                  <td className={rowClass}>
+                    <button
+                      onClick={() => {
+                        setEditingId(s._id);
+                        setSelectedTopicId(s.topicId?._id || "");
+                        setSubtopicName(s.name);
+                        setPromptModifier(s.promptModifier);
+                        setTaskPrompt(s.taskPrompt);
+                        window.scroll(0,0);
+                      }}
+                      className="text-blue-400 hover:underline mr-3 cursor-pointer"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={async () => {
+                        if (window.confirm("Delete this subtopic?")) {
+                          await axiosInstance.delete(
+                            API_PATHS.ADMIN.SUBTOPICS.DELETE(s._id)
+                          );
+                          fetchSubtopics();
+                        }
+                      }}
+                      className="text-red-400 hover:underline cursor-pointer"
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
           </table>
         );
       case "jurisdiction":
         return (
           <table className="w-full text-white mt-6">
-            <thead><tr><th className={rowClass}>Name</th><th className={rowClass}>Legal Framework</th></tr></thead>
-            <tbody>{jurisdictions.map((j) => <tr key={j._id}><td className={rowClass}>{j.name}</td><td className={rowClass}>{j.legalFrameworkPrompt}</td></tr>)}</tbody>
+            <thead>
+              <tr>
+                <th className={rowClass}>Name</th>
+                <th className={rowClass}>Legal Framework</th>
+                <th className={rowClass}>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {jurisdictions.map((j) => (
+                <tr key={j._id}>
+                  <td className={rowClass}>{j.name}</td>
+                  <td className={rowClass}>{j.legalFrameworkPrompt}</td>
+                  <td className={rowClass}>
+                    <button
+                      onClick={() => {
+                        setEditingId(j._id);
+                        setJurisdictionName(j.name);
+                        setLegalFrameworkPrompt(j.legalFrameworkPrompt);
+                        window.scroll(0,0);
+                      }}
+                      className="text-blue-400 hover:underline mr-3 cursor-pointer"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={async () => {
+                        if (window.confirm("Delete this jurisdiction?")) {
+                          await axiosInstance.delete(
+                            API_PATHS.ADMIN.JURISDICTIONS.DELETE(j._id)
+                          );
+                          fetchJurisdictions();
+                        }
+                      }}
+                      className="text-red-400 hover:underline cursor-pointer"
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
           </table>
         );
       case "difficulty":
         return (
           <table className="w-full text-white mt-6">
-            <thead><tr><th className={rowClass}>Level</th><th className={rowClass}>Description</th><th className={rowClass}>Prompt</th></tr></thead>
-            <tbody>{difficulties.map((d) => <tr key={d._id}><td className={rowClass}>{d.level}</td><td className={rowClass}>{d.description}</td><td className={rowClass}>{d.complexityPrompt}</td></tr>)}</tbody>
+            <thead>
+              <tr>
+                <th className={rowClass}>Level</th>
+                <th className={rowClass}>Description</th>
+                <th className={rowClass}>Prompt</th>
+                <th className={rowClass}>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {difficulties.map((d) => (
+                <tr key={d._id}>
+                  <td className={rowClass}>{d.level}</td>
+                  <td className={rowClass}>{d.description}</td>
+                  <td className={rowClass}>{d.complexityPrompt}</td>
+                  <td className={rowClass}>
+                    <button
+                      onClick={() => {
+                        setEditingId(d._id);
+                        setDifficultyLevel(d.level);
+                        setDifficultyDescription(d.description);
+                        setComplexityPrompt(d.complexityPrompt);
+                        window.scroll(0,0);
+                      }}
+                      className="text-blue-400 hover:underline mr-3 cursor-pointer"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={async () => {
+                        if (window.confirm("Delete this difficulty?")) {
+                          await axiosInstance.delete(
+                            API_PATHS.ADMIN.DIFFICULTIES.DELETE(d._id)
+                          );
+                          fetchDifficulties();
+                        }
+                      }}
+                      className="text-red-400 hover:underline cursor-pointer"
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
           </table>
         );
       default:
@@ -217,7 +490,9 @@ const CaseRequirements = () => {
   return (
     <DashboardLayout activeMenu="Case Requirements">
       <div className="text-white mt-5 mb-10">
-        <h2 className="text-2xl font-semibold mb-6">Case Requirement Management</h2>
+        <h2 className="text-2xl font-semibold mb-6">
+          Case Requirement Management
+        </h2>
 
         <div className="flex flex-wrap gap-3 mb-6">
           {tabs.map((tab) => (
@@ -235,11 +510,14 @@ const CaseRequirements = () => {
           ))}
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        
+          <form onSubmit={handleSubmit} className="space-y-4">
           {renderFormFields()}
           {error && <p className="text-red-500 text-sm">{error}</p>}
           {success && <p className="text-green-500 text-sm">{success}</p>}
-          <button type="submit" className="btn-primary">Add</button>
+          <button type="submit" className="btn-primary">
+            {editingId ? "Update" : "Add"}
+          </button>
         </form>
 
         {renderTable()}
